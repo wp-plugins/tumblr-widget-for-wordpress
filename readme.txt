@@ -48,7 +48,7 @@ Not right now. I'm hoping to get to that soon.
 
 = I have another question that's not covered here. =
 
-Email me via the website listed at the top of this form.
+Email me: gabe.roth at gmail.
 
 
 == Changelog ==
