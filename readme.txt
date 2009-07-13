@@ -14,17 +14,17 @@ Tumblr Widget allows you to display the contents of a Tumblr in any widget-enabl
 **Controls**
 # *Title:* The title you want to appear above the Tumblr on your WordPress page. Leave blank if you like.
 
-# *Your Tumblr:* The URL of the Tumblr you want to import. It doesn't have to contain 'tumblr.com'. Leave off the 'http://' at the beginning.
++ *Your Tumblr:* The URL of the Tumblr you want to import. It doesn't have to contain 'tumblr.com'. Leave off the 'http://' at the beginning.
 
-# *Maximum number of posts to display:* This number is a *maximum,* as the text suggests.
++ *Maximum number of posts to display:* This number is a *maximum,* as the text suggests.
 
-# *Link to each post on Tumblr* When checked, this displays the date of the Tumblr post, linking the date to the original post on the Tumblr site.
++ *Link to each post on Tumblr* When checked, this displays the date of the Tumblr post, linking the date to the original post on the Tumblr site.
 
-# *Add inline CSS padding* Adds a CSS style rule adding 8 pixels of padding above and below each Tumblr post. Disable to prevent it messing up your own CSS.
++ *Add inline CSS padding* Adds a CSS style rule adding 8 pixels of padding above and below each Tumblr post. Disable to prevent it messing up your own CSS.
 
-# *Show:* Include or exclude different post types in the feed.
++ *Show:* Include or exclude different post types in the feed.
 
-# *Photo size:* Tumblr provides each photo in five different sizes. Whichever size you choose to display, the image links to the 500 pixel version.
++ *Photo size:* Tumblr provides each photo in five different sizes. Whichever size you choose to display, the image links to the 500 pixel version.
 
 == Installation ==
 
