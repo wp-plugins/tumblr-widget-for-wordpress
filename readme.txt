@@ -12,7 +12,7 @@ Allows you to import a Tumblr into any widgetized area of a WordPress blog.
 Tumblr Widget allows you to display the contents of a Tumblr in any widget-enabled area of your WordPress blog. You can import all Tumblr posts or specify certain categories (photo, link, quotation, etc.) to display.
 
 **Controls**
-# *Title:* The title you want to appear above the Tumblr on your WordPress page. Leave blank if you like.
++ *Title:* The title you want to appear above the Tumblr on your WordPress page. Leave blank if you like.
 
 + *Your Tumblr:* The URL of the Tumblr you want to import. It doesn't have to contain 'tumblr.com'. Leave off the 'http://' at the beginning.
 
