@@ -40,6 +40,16 @@ function Tumblr_Widget() {
 
 function widget( $args, $instance ) {
 
+	if (!function_exists('curl_init')) {
+		echo "cURL is not enabled on this website. Tumblr Widget requires cURL to function.";
+		exit;
+		}
+
+	if (!function_exists('simplexml_load_string')) {
+		echo "SimpleXML is not enabled on this website. Tumblr Widget requires SimpleXML to function.";
+		exit;
+		}
+
 	function link_to_tumblr($post_url, $time) {
 		echo '<p><a href="'.$post_url.'" class="tumblr_link">'.date('m/d/y', intval($time)).'</a></p>';
 	}
