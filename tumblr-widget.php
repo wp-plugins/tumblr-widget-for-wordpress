@@ -58,6 +58,7 @@ function widget( $args, $instance ) {
 
 	$title = apply_filters('widget_title', $instance['title'] );
 	$tumblr = $instance['tumblr'];
+	$tumblr = rtrim($tumblr, "/ \t\n\r");
 	$photo_size = $instance['photo_size'];
 	$show_regular = $instance['show_regular'];
 	$show_photo = $instance['show_photo'];
