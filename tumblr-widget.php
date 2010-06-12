@@ -318,7 +318,7 @@ function update( $new_instance, $old_instance ) {
 function form( $instance ) {
 
 // defaults
-		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>true, 'show_time'=>true, 'number'=>10);
+		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10);
 		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
 <?php // form html ?>
