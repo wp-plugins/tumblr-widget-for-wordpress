@@ -63,6 +63,12 @@ Email me: gabe.roth at gmail.
 = 1.0 =
 * First release.
 
+= 1.1 =
+* Added 'link to Tumblr' feature
+
+= 1.2 =
+* Fixed bug that was preventing settings from being preserved with WP 2.9.
+
 
 == To do ==
 

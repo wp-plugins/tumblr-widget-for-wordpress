@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.1
+ * Version: 1.2
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -355,11 +355,13 @@ function form( $instance ) {
 			</select>
 		</p>
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_time'], true ); ?> id="<?php echo $this->get_field_id( 'show_time' ); ?>" name="<?php echo $this->get_field_name( 'show_time' ); ?>" />
+			<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'show_time' ); ?>" name="<?php echo $this->get_field_name( 'show_time' ); ?>" <?php if ($instance['show_time']) echo 'checked'; ?> />
 			<label for="<?php echo $this->get_field_id( 'show_time' ); ?>">Link to each post on Tumblr</label>
 		</p>
+		
+		
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['inline_styles'], true ); ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['inline_styles']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'inline_styles' ); ?>">Add inline CSS padding</label>
 		</p>
 
@@ -368,12 +370,12 @@ function form( $instance ) {
 		<p><strong>Show:</strong></p>
 
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_regular'], true ); ?> id="<?php echo $this->get_field_id( 'show_regular' ); ?>" name="<?php echo $this->get_field_name( 'show_regular' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_regular']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_regular' ); ?>" name="<?php echo $this->get_field_name( 'show_regular' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_regular' ); ?>">Regular posts</label>
 		</p>
 
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_photo'], true ); ?> id="<?php echo $this->get_field_id( 'show_photo' ); ?>" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_photo']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_photo' ); ?>" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_photo' ); ?>">Photo posts</label>
 		</p>
 
@@ -383,25 +385,25 @@ function form( $instance ) {
 		</p>
 
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_quote'], true ); ?> id="<?php echo $this->get_field_id( 'show_quote' ); ?>" name="<?php echo $this->get_field_name( 'show_quote' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_quote']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_quote' ); ?>" name="<?php echo $this->get_field_name( 'show_quote' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_quote' ); ?>">Quotation posts</label>
 		</p>
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_link'], true ); ?> id="<?php echo $this->get_field_id( 'show_link' ); ?>" name="<?php echo $this->get_field_name( 'show_link' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_link']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_link' ); ?>" name="<?php echo $this->get_field_name( 'show_link' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_link' ); ?>">Link posts</label>
 		</p>
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_conversation'], true ); ?> id="<?php echo $this->get_field_id( 'show_conversation' ); ?>" name="<?php echo $this->get_field_name( 'show_conversation' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_conversation']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_conversation' ); ?>" name="<?php echo $this->get_field_name( 'show_conversation' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_conversation' ); ?>">Conversation posts</label>
 		</p>
 
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_audio'], true ); ?> id="<?php echo $this->get_field_id( 'show_audio' ); ?>" name="<?php echo $this->get_field_name( 'show_audio' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_audio']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_audio' ); ?>" name="<?php echo $this->get_field_name( 'show_audio' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_audio' ); ?>">Audio posts</label>
 		</p>
 
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_video'], true ); ?> id="<?php echo $this->get_field_id( 'show_video' ); ?>" name="<?php echo $this->get_field_name( 'show_video' ); ?>" />
+			<input class="checkbox" type="checkbox" <?php if ($instance['show_video']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_video' ); ?>" name="<?php echo $this->get_field_name( 'show_video' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'show_video' ); ?>">Video posts</label>
 		</p>
 
