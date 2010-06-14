@@ -41,6 +41,12 @@ gabe.roth@gmail.com
 
 == Frequently Asked Questions ==
 
+= Can I display photos at a different size other than the five in the dropdown menu? 
+
+Not at the moment. Tumblr provides the photos at those sizes; the widget just pulls them down from Tumblr and displays them.
+
+More powerful photo resizing is planned for version 2.0. I can't say how soon that'll happen, though.
+
 = How can I change the way the Tumblr posts display? =
 
 Use CSS. You can add targeted style rules to your `style.css` file, in your theme folder. Each post is a <code><li></code> with the class "tumblr_post." Each post also has the class of its post type: "quote", "link", "conversation", "regular", "photo", "audio", or "video".
@@ -72,4 +78,8 @@ Email me: gabe.roth at gmail.
 
 == To do ==
 
-* Authenticate and import private Tumblrs
+* 'Link title to Tumblr' option (planned for 1.3)
+
+* Add ability to resize images to any size, not just Tumblr-provided sizes (planned for 2.0)
+
+* Authenticate and import private Tumblrs (some time in the distant future ...)
