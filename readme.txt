@@ -45,6 +45,10 @@ gabe.roth@gmail.com
 
 == Frequently Asked Questions ==
 
+= I'm getting an error message: "Sorry, we're having trouble loading this Tumblr ..." What does it mean, and how can I fix it? =
+
+So far, what it means is that Tumblr's servers are being flaky and not sending out the API data that Tumblr Widget reads. Which means, unfortunately, that there isn't much you can do.
+
 = Can I display photos at a different size other than the five in the dropdown menu? =
 
 Not at the moment. Tumblr provides the photos at those sizes; the widget just pulls them down from Tumblr and displays them.
