@@ -45,7 +45,7 @@ gabe.roth@gmail.com
 
 == Frequently Asked Questions ==
 
-= Can I display photos at a different size other than the five in the dropdown menu? 
+= Can I display photos at a different size other than the five in the dropdown menu? =
 
 Not at the moment. Tumblr provides the photos at those sizes; the widget just pulls them down from Tumblr and displays them.
 
