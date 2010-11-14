@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.2
+ * Version: 1.3
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -70,6 +70,8 @@ function widget( $args, $instance ) {
 	$inline_styles = $instance['inline_styles'];
 	$show_time = $instance['show_time'];
 	$number = $instance['number'];
+	$video_width = $instance['video_width'];
+	$link_title = $instance['link_title'];
 
 	$types = array (
 		"regular" => $show_regular,
@@ -119,8 +121,15 @@ function widget( $args, $instance ) {
 
 /* Preliminary HTML */
 		echo $before_widget;
-		if ( $title )
-			echo $before_title . $title . $after_title;
+		if ( $title ) {
+			echo $before_title;
+			if ( $link_title ) {
+				echo "<a href='http://" . $tumblr . "'>" . $title . "</a>";
+			} else {
+				echo $title;
+			}
+			echo $after_title;
+		}
 		echo '<ul>';
 		$post_count = 0;
 
@@ -246,6 +255,7 @@ function widget( $args, $instance ) {
 
 // VIDEO POSTS
 					if ($type == "video" && $show_video) {
+					
 						echo '<li class="tumblr_post '.$type.'" ';
 						if ($inline_styles) {
 							echo 'style="padding:8px 0"';
@@ -253,6 +263,17 @@ function widget( $args, $instance ) {
 						echo '>';
 						$caption = $post->{'video-caption'};
 						$player = $post->{'video-player'};
+						
+						if ($video_width) {
+							if ( $video_width < 50 ) $video_width = 50;
+							$pattern = '/width="(\d+)" height="(\d+)"/';						
+							preg_match($pattern, $player, $matches);
+							$old_width = $matches[1];
+							$old_height = $matches[2];
+							$new_height = $old_height * ($video_width / $old_width );						
+							$replacement = 'width="' . $video_width . '" height="' . $new_height . '"';
+							$player = preg_replace($pattern, $replacement, $player);
+						}
 						$source = $post->{'video-source'};
 						echo $player."<br />".$caption."<br />";
 						if ($show_time) {
@@ -309,6 +330,8 @@ function update( $new_instance, $old_instance ) {
 		$instance['inline_styles'] = $new_instance['inline_styles'];
 		$instance['show_time'] = $new_instance['show_time'];
 		$instance['number'] = $new_instance['number'];
+		$instance['video_width'] = $new_instance['video_width'];
+		$instance['link_title'] = $new_instance['link_title'];
 
 		return $instance;
 	}
@@ -318,7 +341,7 @@ function update( $new_instance, $old_instance ) {
 function form( $instance ) {
 
 // defaults
-		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10);
+		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false );
 		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
 <?php // form html ?>
@@ -354,15 +377,27 @@ function form( $instance ) {
 			<option value="25" <?php if ($instance['number']==25) echo 'selected="selected"'; ?>>25</option>
 			</select>
 		</p>
+
+		<p>
+			<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'link_title' ); ?>" name="<?php echo $this->get_field_name( 'link_title' ); ?>" <?php if ($instance['link_title']) echo 'checked'; ?> />
+			<label for="<?php echo $this->get_field_id( 'link_title' ); ?>">Link title to Tumblr</label>
+		</p>
+
 		<p>
 			<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'show_time' ); ?>" name="<?php echo $this->get_field_name( 'show_time' ); ?>" <?php if ($instance['show_time']) echo 'checked'; ?> />
 			<label for="<?php echo $this->get_field_id( 'show_time' ); ?>">Link to each post on Tumblr</label>
-		</p>
-		
+		</p>		
 		
 		<p>
 			<input class="checkbox" type="checkbox" <?php if ($instance['inline_styles']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
 			<label for="<?php echo $this->get_field_id( 'inline_styles' ); ?>">Add inline CSS padding</label>
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'video_width' ); ?>">Set video width:</label>
+			<input id="<?php echo $this->get_field_id( 'video_width' ); ?>" name="<?php echo $this->get_field_name( 'video_width' ); ?>" value="<?php echo $instance['video_width']; ?>" maxlength='4' style="width:30px" /> px
+			<br />
+			<em>Leave blank to show videos at original size.</em>
 		</p>
 
 <hr />

@@ -26,9 +26,13 @@ gabe.roth@gmail.com
 
 + *Maximum number of posts to display:* This number is a *maximum,* as the text suggests.
 
++ *Link title to Tumblr:* Turns the widget title into a link to your Tumblr's URL. If you don't enter a title in the title field, you won't get a link.
+
 + *Link to each post on Tumblr* When checked, this displays the date of the Tumblr post, linking the date to the original post on the Tumblr site.
 
 + *Add inline CSS padding* Adds a CSS style rule adding 8 pixels of padding above and below each Tumblr post. Disable to prevent it messing up your own CSS.
+
++ *Set video width:* Resizes videos to help them fit in your theme. Enter a value in pixels. 50px is the minimum. Height will be adjusted automatically in proportion to the width you choose.
 
 + *Show:* Include or exclude different post types in the feed.
 
@@ -75,10 +79,9 @@ Email me: gabe.roth at gmail.
 = 1.2 =
 * Fixed bug that was preventing settings from being preserved with WP 2.9.
 
-
+= 1.3 =
+* Added two features: 'Resize videos' and 'link title to Tumblr'. 
 == To do ==
-
-* 'Link title to Tumblr' option (planned for 1.3)
 
 * Add ability to resize images to any size, not just Tumblr-provided sizes (planned for 2.0)
 
