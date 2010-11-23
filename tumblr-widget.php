@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.3
+ * Version: 1.4
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -40,10 +40,7 @@ function Tumblr_Widget() {
 
 function widget( $args, $instance ) {
 
-	if (!function_exists('curl_init')) {
-		echo "cURL is not enabled on this website. Tumblr Widget requires cURL to function.";
-		exit;
-		}
+	require_once( ABSPATH . 'wp-includes/class-http.php' );
 
 	if (!function_exists('simplexml_load_string')) {
 		echo "SimpleXML is not enabled on this website. Tumblr Widget requires SimpleXML to function.";
@@ -54,8 +51,10 @@ function widget( $args, $instance ) {
 		echo '<p><a href="'.$post_url.'" class="tumblr_link">'.date('m/d/y', intval($time)).'</a></p>';
 	}
 
-	extract( $args );
+	$tumblrcache = get_option('tumblrcache');
 
+	/* Set up variables and arguments */	
+	extract( $args );
 	$title = apply_filters('widget_title', $instance['title'] );
 	$tumblr = $instance['tumblr'];
 	$tumblr = rtrim($tumblr, "/ \t\n\r");
@@ -82,44 +81,49 @@ function widget( $args, $instance ) {
 		"audio" => $show_audio,
 		"video" => $show_video,
 		);
-
-	$count = 0;
-	foreach( $types as $type ) {
-		if ($type)
-			$count++;
-		}
-
-/* if there's only one category, get the next $number posts in that category */
-	if ( $count == 1 ) {
-		foreach ( $types as $type => $value ) {
-			if ( $value )
-				$the_type = $type;
+	
+	/* If the cache was last updated more than one minute ago ... */
+	if ( $tumblrcache['lastcheck'] <  ( mktime() - 60 ) ) {	
+		$count = 0;
+		foreach( $types as $type ) {
+			if ($type)
+				$count++;
 			}
-		$request_url = "http://".$tumblr."/api/read?num=".$number."&type=".$the_type;
+	
+		/* if there's only one category, get the next $number posts in that category */
+		if ( $count == 1 ) {
+			foreach ( $types as $type => $value ) {
+				if ( $value )
+					$the_type = $type;
+				}
+			$request_url = "http://".$tumblr."/api/read?num=".$number."&type=".$the_type;
+			}
+	
+		/* if all seven categories are checked, get the next $number posts in all categories */
+		elseif ( $count == 7 ) {
+			$request_url = "http://".$tumblr."/api/read?num=".$number;
+			}
+	
+		/* if there are 2-6 categories, get the next 50 posts and we'll keep count of how many are displayed. */
+		else {
+			$request_url = "http://".$tumblr."/api/read?num=50";
+			}
+		
+		/* make request using WP_HTTP */
+		$request = new WP_Http;
+		$result = $request->request( $request_url );
+		if ( strpos($result['body'], "<!DOCT") !== 0 ) {		
+			$tumblrcache['xml'] = $result['body'];
+			$tumblrcache['lastcheck'] = mktime();
+			update_option('tumblrcache', $tumblrcache);
 		}
+	} // end if
 
-/* if all seven categories are checked, get the next $number posts in all categories */
-	elseif ( $count == 7 ) {
-		$request_url = "http://".$tumblr."/api/read?num=".$number;
-		}
+	/* Using the cached version, whether or not it was just updated. */
+	$xml_string = $tumblrcache['xml'];
+	$xml = simplexml_load_string($xml_string); 
 
-/* if there are 2-6 categories, get the next 50 posts and we'll keep count of how many are displayed. */
-	else {
-		$request_url = "http://".$tumblr."/api/read?num=50";
-		}
-
-/* Set up and execute curl request */
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $request_url);
-	curl_setopt($ch, CURLOPT_FAILONERROR, 1);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-	$xml_string = curl_exec($ch);
-	curl_close($ch);
-
-/* Load Tumblr data into SimpleXML object */
-	if ( $xml = simplexml_load_string($xml_string) ) {
-
-/* Preliminary HTML */
+		/* Preliminary HTML */
 		echo $before_widget;
 		if ( $title ) {
 			echo $before_title;
@@ -133,11 +137,11 @@ function widget( $args, $instance ) {
 		echo '<ul>';
 		$post_count = 0;
 
-/* Starting to loop through the posts */
+		/* Starting to loop through the posts */
 		foreach ( $xml->posts->post as $post ) {
 
 			if ( $post_count < $number ) {
-/* Get post type and other info from XML attributes and store in variables */
+				/* Get post type and other info from XML attributes and store in variables */
 				foreach ($post->attributes() as $key => $value) {
 					if ( $key == "type" )
 						$type = $value;
@@ -302,12 +306,9 @@ function widget( $args, $instance ) {
 
 			} // end of loop
 		} // $post_count == number;
-// end of widget
+	// end of widget
 	echo '</ul>'.$after_widget;
-	}
-	else {
-		echo "Sorry, we're having trouble loading this Tumblr ...";
-		}
+
 	}
 
 
@@ -335,7 +336,6 @@ function update( $new_instance, $old_instance ) {
 
 		return $instance;
 	}
-
 
 // creates controls form
 function form( $instance ) {

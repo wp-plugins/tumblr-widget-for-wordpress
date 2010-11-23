@@ -2,7 +2,7 @@
 Contributors: gabrielroth
 Tags: Tumblr, widget
 Requires at least: 2.8
-Tested up to: 3.0
+Tested up to: 3.0.1
 Stable tag: trunk
 
 Allows you to import a Tumblr into any widgetized area of a WordPress blog.
@@ -45,10 +45,6 @@ gabe.roth@gmail.com
 
 == Frequently Asked Questions ==
 
-= I'm getting an error message: "Sorry, we're having trouble loading this Tumblr ..." What does it mean, and how can I fix it? =
-
-So far, what it means is that Tumblr's servers are being flaky and not sending out the API data that Tumblr Widget reads. Which means, unfortunately, that there isn't much you can do.
-
 = Can I display photos at a different size other than the five in the dropdown menu? =
 
 Not at the moment. Tumblr provides the photos at those sizes; the widget just pulls them down from Tumblr and displays them.
@@ -62,10 +58,6 @@ Use CSS. You can add targeted style rules to your `style.css` file, in your them
 = Can I import and display someone else's Tumblr? =
 
 Yes, you can. But you shouldn't, unless you have their permission.
-
-= Can I display my Tumblr if it's set to private? =
-
-Not right now. I'm hoping to get to that soon.
 
 = I have another question that's not covered here. =
 
@@ -85,8 +77,7 @@ Email me: gabe.roth at gmail.
 
 = 1.3 =
 * Added two features: 'Resize videos' and 'link title to Tumblr'. 
-== To do ==
 
-* Add ability to resize images to any size, not just Tumblr-provided sizes (planned for 2.0)
-
-* Authenticate and import private Tumblrs (some time in the distant future ...)
+= 1.4 =
+* Added caching, which should help when Tumblr's servers are being flaky.
+* We now use WP_Http instead of cURL, as recommended.
