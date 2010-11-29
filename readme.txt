@@ -84,3 +84,7 @@ Email me: gabe.roth at gmail.
 
 = 1.4.1 =
 * Fixed reappearing bug that prevented some themes from finishing loading on Tumblr failure.
+
+= 1.4.2 =
+* Now flushing cache when changing Tumblr URL.
+* Added 'Hide error messages' option

@@ -43,9 +43,11 @@ function widget( $args, $instance ) {
 	require_once( ABSPATH . 'wp-includes/class-http.php' );
 
 	if (!function_exists('simplexml_load_string')) {
-		echo "SimpleXML is not enabled on this website. Tumblr Widget requires SimpleXML to function.";
-		exit;
-		}
+		if (!$hide_errors) {
+			echo "SimpleXML is not enabled on this website. Tumblr Widget requires SimpleXML to function.";
+			exit;
+		}	
+	}
 
 	function link_to_tumblr($post_url, $time) {
 		echo '<p><a href="'.$post_url.'" class="tumblr_link">'.date('m/d/y', intval($time)).'</a></p>';
@@ -71,6 +73,7 @@ function widget( $args, $instance ) {
 	$number = $instance['number'];
 	$video_width = $instance['video_width'];
 	$link_title = $instance['link_title'];
+	$hide_errors = $instance['hide_errors'];
 
 	$types = array (
 		"regular" => $show_regular,
@@ -307,7 +310,9 @@ function widget( $args, $instance ) {
 		// end of widget
 		echo '</ul>'.$after_widget;
 		} else {
-		echo '<span class="error">Sorry, we\'re having troulbe loading this Tumblr.</span>';
+			if (!$hide_errors) {
+				echo '<span class="error">Sorry, we\'re having trouble loading this Tumblr.</span>';
+			}
 		}
 	}
 
@@ -317,6 +322,10 @@ function widget( $args, $instance ) {
 // saves widget settings
 function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
+		
+		if ($new_instance['tumblr'] != $instance['tumblr']) {
+			delete_option('tumblrcache');
+		}
 
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['tumblr'] = strip_tags( $new_instance['tumblr'] );
@@ -333,6 +342,7 @@ function update( $new_instance, $old_instance ) {
 		$instance['number'] = $new_instance['number'];
 		$instance['video_width'] = $new_instance['video_width'];
 		$instance['link_title'] = $new_instance['link_title'];
+		$instance['hide_errors'] = $new_instance['hide_errors'];
 
 		return $instance;
 	}
@@ -341,7 +351,7 @@ function update( $new_instance, $old_instance ) {
 function form( $instance ) {
 
 // defaults
-		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false );
+		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
 		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
 <?php // form html ?>
@@ -399,6 +409,14 @@ function form( $instance ) {
 			<br />
 			<em>Leave blank to show videos at original size.</em>
 		</p>
+
+		<p>
+			<input class="checkbox" type="checkbox" <?php if ($instance['hide_errors']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'hide_errors' ); ?>" name="<?php echo $this->get_field_name( 'hide_errors' ); ?>" />
+			<label for="<?php echo $this->get_field_id( 'hide_errors' ); ?>">Hide error messages</label>
+			<br />
+			<em>If checked, the widget fails silently when it can&rsquo;t load Tumblr content.</em>
+		</p>
+
 
 <hr />
 
