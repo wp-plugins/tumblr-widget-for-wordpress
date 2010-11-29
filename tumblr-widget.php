@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.4.1
+ * Version: 1.4.2
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
