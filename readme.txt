@@ -81,3 +81,6 @@ Email me: gabe.roth at gmail.
 = 1.4 =
 * Added caching, which should help when Tumblr's servers are being flaky.
 * We now use WP_Http instead of cURL, as recommended.
+
+= 1.4.1 =
+* Fixed reappearing bug that prevented some themes from finishing loading on Tumblr failure.

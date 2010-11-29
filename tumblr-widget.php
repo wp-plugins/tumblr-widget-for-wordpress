@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.4
+ * Version: 1.4.1
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -121,8 +121,7 @@ function widget( $args, $instance ) {
 
 	/* Using the cached version, whether or not it was just updated. */
 	$xml_string = $tumblrcache['xml'];
-	$xml = simplexml_load_string($xml_string); 
-
+	if ( $xml = simplexml_load_string($xml_string) ) { 
 		/* Preliminary HTML */
 		echo $before_widget;
 		if ( $title ) {
@@ -303,12 +302,13 @@ function widget( $args, $instance ) {
 						echo '</li>';
 						$post_count++;
 					}
-
-			} // end of loop
-		} // $post_count == number;
-	// end of widget
-	echo '</ul>'.$after_widget;
-
+				} // end of loop
+			} // $post_count == number;
+		// end of widget
+		echo '</ul>'.$after_widget;
+		} else {
+		echo '<span class="error">Sorry, we\'re having troulbe loading this Tumblr.</span>';
+		}
 	}
 
 
