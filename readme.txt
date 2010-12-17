@@ -88,3 +88,7 @@ Email me: gabe.roth at gmail.
 = 1.4.2 =
 * Now flushing cache when changing Tumblr URL.
 * Added 'Hide error messages' option
+
+= 1.4.3 =
+* Better error checking.
+* Various minor fixes.

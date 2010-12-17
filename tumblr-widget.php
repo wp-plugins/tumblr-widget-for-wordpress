@@ -92,6 +92,10 @@ function widget( $args, $instance ) {
 			if ($type)
 				$count++;
 			}
+		/* clean up Tumblr URL */
+		if ( strpos($tumblr, "http://") === 0 )
+			$tumblr = substr($tumblr, 7);
+		$tumblr = rtrim($tumblr, "/");
 	
 		/* if there's only one category, get the next $number posts in that category */
 		if ( $count == 1 ) {
@@ -115,6 +119,13 @@ function widget( $args, $instance ) {
 		/* make request using WP_HTTP */
 		$request = new WP_Http;
 		$result = $request->request( $request_url );
+		
+		if ( is_wp_error($result) ) {
+			echo "Error: " . $result->get_error_message();
+			return;
+		}
+		
+		
 		if ( strpos($result['body'], "<!DOCT") !== 0 ) {		
 			$tumblrcache['xml'] = $result['body'];
 			$tumblrcache['lastcheck'] = mktime();
@@ -124,7 +135,14 @@ function widget( $args, $instance ) {
 
 	/* Using the cached version, whether or not it was just updated. */
 	$xml_string = $tumblrcache['xml'];
-	if ( $xml = simplexml_load_string($xml_string) ) { 
+	try {	
+		$xml = simplexml_load_string($xml_string);
+	} catch (Exception $e) {
+		//Ignore the error and insure $xml is null
+		$xml == null;	
+	}
+	
+	if ( !empty($xml) ) {
 		/* Preliminary HTML */
 		echo $before_widget;
 		if ( $title ) {
@@ -190,7 +208,7 @@ function widget( $args, $instance ) {
 									}
 								}
 							}
-						echo '<a href="'.$link_url.'"><img src="'.$url.'" /></a><br />'.$caption.'<br />';
+						echo '<a href="'.$link_url.'"><img src="'.$url.'" alt="photo from Tumblr" /></a><br />'.$caption.'<br />';
 						if ($show_time) {
 							link_to_tumblr($post_url, $time);
 						}
