@@ -241,7 +241,7 @@ function widget( $args, $instance ) {
 						$text = $post->{'link-text'};
 						$url = $post->{'link-url'};
 						$description = $post->{'link-description'};
-						echo '<p><a href="'.$url.'">'.$text.'</a>. '.$description.'</p>';
+						echo '<p><a href="'.$url.'">'.$text.'</a> '.$description.'</p>';
 						if ($show_time) {
 							link_to_tumblr($post_url, $time);
 						}
