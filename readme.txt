@@ -92,3 +92,9 @@ Email me: gabe.roth at gmail.
 = 1.4.3 =
 * Better error checking.
 * Various minor fixes.
+
+= 1.4.4 =
+* Minor bug fixes.
+
+= 1.4.5 =
+* Fixed bug that caused a dot to appear in link posts where it didn't belong.
