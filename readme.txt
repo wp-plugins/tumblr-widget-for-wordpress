@@ -2,7 +2,7 @@
 Contributors: gabrielroth
 Tags: Tumblr, widget
 Requires at least: 2.8
-Tested up to: 3.0.1
+Tested up to: 3.1
 Stable tag: trunk
 
 Allows you to import a Tumblr into any widgetized area of a WordPress blog.
@@ -66,35 +66,35 @@ Email me: gabe.roth at gmail.
 
 == Changelog ==
 
-= 1.0 =
-* First release.
+= 1.4.5 =
+* Fixed bug that caused a dot to appear in link posts where it didn't belong.
 
-= 1.1 =
-* Added 'link to Tumblr' feature
-
-= 1.2 =
-* Fixed bug that was preventing settings from being preserved with WP 2.9.
-
-= 1.3 =
-* Added two features: 'Resize videos' and 'link title to Tumblr'. 
-
-= 1.4 =
-* Added caching, which should help when Tumblr's servers are being flaky.
-* We now use WP_Http instead of cURL, as recommended.
-
-= 1.4.1 =
-* Fixed reappearing bug that prevented some themes from finishing loading on Tumblr failure.
-
-= 1.4.2 =
-* Now flushing cache when changing Tumblr URL.
-* Added 'Hide error messages' option
+= 1.4.4 =
+* Minor bug fixes.
 
 = 1.4.3 =
 * Better error checking.
 * Various minor fixes.
 
-= 1.4.4 =
-* Minor bug fixes.
+= 1.4.2 =
+* Now flushing cache when changing Tumblr URL.
+* Added 'Hide error messages' option
 
-= 1.4.5 =
-* Fixed bug that caused a dot to appear in link posts where it didn't belong.
+= 1.4.1 =
+* Fixed reappearing bug that prevented some themes from finishing loading on Tumblr failure.
+
+= 1.4 =
+* Added caching, which should help when Tumblr's servers are being flaky.
+* We now use WP_Http instead of cURL, as recommended.
+
+= 1.3 =
+* Added two features: 'Resize videos' and 'link title to Tumblr'. 
+
+= 1.2 =
+* Fixed bug that was preventing settings from being preserved with WP 2.9.
+
+= 1.1 =
+* Added 'link to Tumblr' feature
+
+= 1.0 =
+* First release.
