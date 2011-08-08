@@ -66,6 +66,9 @@ Email me: gabe.roth at gmail.
 
 == Changelog ==
 
+= 1.4.6 =
+* Fixed bug with video resizing code.
+
 = 1.4.5 =
 * Fixed bug that caused a dot to appear in link posts where it didn't belong.
 

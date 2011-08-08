@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.4.5
+ * Version: 1.4.6
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -290,8 +290,16 @@ function widget( $args, $instance ) {
 							if ( $video_width < 50 ) $video_width = 50;
 							$pattern = '/width="(\d+)" height="(\d+)"/';						
 							preg_match($pattern, $player, $matches);
-							$old_width = $matches[1];
-							$old_height = $matches[2];
+							if ($matches) {
+								$old_width = $matches[1];
+								$old_height = $matches[2];
+							} else {
+							$pattern = '/height="(\d+)" width="(\d+)"/';						
+								preg_match($pattern, $player, $matches);
+								$old_height = $matches[1];
+								$old_width = $matches[2];
+							}
+							
 							$new_height = $old_height * ($video_width / $old_width );						
 							$replacement = 'width="' . $video_width . '" height="' . $new_height . '"';
 							$player = preg_replace($pattern, $replacement, $player);
