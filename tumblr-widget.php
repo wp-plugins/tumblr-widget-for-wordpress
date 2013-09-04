@@ -3,11 +3,11 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://gabrielroth.com/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.4.7
+ * Version: 1.4.8
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
-/*  Copyright 2009  GABRIEL ROTH  (email : gabe.roth@gmail.com)
+/*  Copyright 2013  GABRIEL ROTH  (email : gabe.roth@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ function widget( $args, $instance ) {
 		echo '<p><a href="'.$post_url.'" class="tumblr_link">'.date('m/d/y', intval($time)).'</a></p>';
 	}
 
-	$tumblrcache = get_option('tumblrcache');
+	$tumblrcache = unserialize(get_option('tumblrcache'));
 
 	/* Set up variables and arguments */	
 	extract( $args );
@@ -84,7 +84,7 @@ function widget( $args, $instance ) {
 		);
 	
 	/* If the cache was last updated more than one minute ago ... */
-	if ( $tumblrcache['lastcheck'] <  ( mktime() - 60 ) ) {	
+	if ( $tumblrcache['lastcheck'] <  ( time() - 60 ) ) {	
 		$count = 0;
 		foreach( $types as $type ) {
 			if ($type)
@@ -126,8 +126,9 @@ function widget( $args, $instance ) {
 		
 		if ( strpos($result['body'], "<!DOCT") !== 0 ) {		
 			$tumblrcache['xml'] = $result['body'];
-			$tumblrcache['lastcheck'] = mktime();
-			update_option('tumblrcache', $tumblrcache);
+			$tumblrcache['lastcheck'] = time();
+			update_option('tumblrcache', serialize($tumblrcache));
+
 		}
 	} // end if
 

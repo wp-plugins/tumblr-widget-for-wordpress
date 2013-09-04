@@ -2,7 +2,7 @@
 Contributors: gabrielroth
 Tags: Tumblr, widget
 Requires at least: 2.8
-Tested up to: 3.1
+Tested up to: 3.6
 Stable tag: trunk
 
 Allows you to import a Tumblr into any widgetized area of a WordPress blog.
@@ -65,6 +65,10 @@ Email me: gabe.roth at gmail.
 
 
 == Changelog ==
+
+= 1.4.8 =
+* Fixed bug that was causing SimpleXML errors.
+* Fixed bug that was throwing warning for using mktime() with no argument.
 
 = 1.4.7 =
 * Tumblr's API started inserting some extra whitespace before the XML, making it invalid; this revision trims that whitespace before processing.
