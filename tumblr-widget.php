@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://wordpress.org/plugins/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.4.8
+ * Version: 1.4.9
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -58,6 +58,7 @@ function widget( $args, $instance ) {
 	$title = apply_filters('widget_title', $instance['title'] );
 	$tumblr = $instance['tumblr'];
 	$tumblr = rtrim($tumblr, "/ \t\n\r");
+	$tag = $instance['tag'];
 	$photo_size = $instance['photo_size'];
 	$show_regular = $instance['show_regular'];
 	$show_photo = $instance['show_photo'];
@@ -114,6 +115,10 @@ function widget( $args, $instance ) {
 			$request_url = "http://".$tumblr."/api/read?num=50";
 			}
 		
+		/* add tag, if any, to request URL */
+		$request_url .= "&tagged=" . urlencode($tag);
+		
+		
 		/* make request using WP_HTTP */
 		$request = new WP_Http;
 		$result = $request->request( $request_url );
@@ -155,184 +160,184 @@ function widget( $args, $instance ) {
 		}
 		echo '<ul>';
 		$post_count = 0;
-
-		/* Starting to loop through the posts */
-		foreach ( $xml->posts->post as $post ) {
-
-			if ( $post_count < $number ) {
-				/* Get post type and other info from XML attributes and store in variables */
-				foreach ($post->attributes() as $key => $value) {
-					if ( $key == "type" )
-						$type = $value;
-					if ( $key == "unix-timestamp" )
-						$time = $value;
-					if ( $key == "url" )
-						$post_url = $value;
-				}
-
-/* Now we set up methods for displaying each type of post ... */
-
-// REGULAR POSTS
-					if ( $type == "regular" && $show_regular ) {
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ( $inline_styles ) {
-							echo 'style="padding:8px 0"';
-						}
-						echo '>';
-						$post_title = $post->{'regular-title'};
-						$body = $post->{'regular-body'};
-						echo '<h3>'.$post_title.'</h3><p>'.$body.'</p>';
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
-						}
-						echo '</li>';
-						$post_count++;
+		
+		if ( $xml->posts ) {
+			/* Starting to loop through the posts */
+			foreach ( $xml->posts->post as $post ) {
+				if ( $post_count < $number ) {
+					/* Get post type and other info from XML attributes and store in variables */
+					foreach ($post->attributes() as $key => $value) {
+						if ( $key == "type" )
+							$type = $value;
+						if ( $key == "unix-timestamp" )
+							$time = $value;
+						if ( $key == "url" )
+							$post_url = $value;
 					}
 
-// PHOTO POSTS
-					if ( $type == "photo" && $show_photo ) {
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ($inline_styles) {
-							echo 'style="padding:8px 0"';
-						}
-						echo '>';
-						$caption = $post->{'photo-caption'};
-						foreach ($post->{'photo-url'} as $this_url) {
-							foreach ($this_url->attributes() as $key => $value) {
-								if ($value == $photo_size) {
-									$url = $this_url;
-									}
-								if ($value == 500) {
-									$link_url = $this_url;
-									}
-								}
+	/* Now we set up methods for displaying each type of post ... */
+
+	// REGULAR POSTS
+						if ( $type == "regular" && $show_regular ) {
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ( $inline_styles ) {
+								echo 'style="padding:8px 0"';
 							}
-						echo '<a href="'.$link_url.'"><img src="'.$url.'" alt="photo from Tumblr" /></a><br />'.$caption.'<br />';
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
-						}
-						echo '</li>';
-						$post_count++;
-					}
-
-// QUOTE POSTS
-					if ($type == "quote" && $show_quote) {
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ($inline_styles) {
-							echo 'style="padding:8px 0"';
-						}
-						echo '>';
-						$text = $post->{'quote-text'};
-						$source = $post->{'quote-source'};
-						echo '<p><blockquote>'.$text.'</blockquote>'.$source.'</p>';
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
-						}
-						echo '</li>';
-						$post_count++;
-					}
-
-// LINK POSTS
-					if ($type == "link" && $show_link) {
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ($inline_styles) {
-							echo 'style="padding:8px 0"';
-						}
-						echo '>';
-						$text = $post->{'link-text'};
-						$url = $post->{'link-url'};
-						$description = $post->{'link-description'};
-						echo '<p><a href="'.$url.'">'.$text.'</a> '.$description.'</p>';
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
-						}
-						echo '</li>';
-						$post_count++;
-					}
-
-// CONVERSATION POSTS
-					if ($type == "conversation" && $show_conversation) {
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ($inline_styles) {
-							echo 'style="padding:8px 0"';
-						}
-						echo '>';
-						$title = $post->{'conversation-title'};
-						if ($title) {
-							echo '<h3>'.$title.'</h3>';
+							echo '>';
+							$post_title = $post->{'regular-title'};
+							$body = $post->{'regular-body'};
+							echo '<h3>'.$post_title.'</h3><p>'.$body.'</p>';
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
 							}
-						foreach ($post->conversation->line as $line) {
-							foreach ($line->attributes() as $key => $value) {
-								if ($key == "label") {
-									$name = $value;
+							echo '</li>';
+							$post_count++;
+						}
+
+	// PHOTO POSTS
+						if ( $type == "photo" && $show_photo ) {
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ($inline_styles) {
+								echo 'style="padding:8px 0"';
+							}
+							echo '>';
+							$caption = $post->{'photo-caption'};
+							foreach ($post->{'photo-url'} as $this_url) {
+								foreach ($this_url->attributes() as $key => $value) {
+									if ($value == $photo_size) {
+										$url = $this_url;
+										}
+									if ($value == 500) {
+										$link_url = $this_url;
+										}
 									}
 								}
-								echo '<strong>'.$name.'</strong> '.$line.'<br />';
+							echo '<a href="'.$link_url.'"><img src="'.$url.'" alt="photo from Tumblr" /></a><br />'.$caption;
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
 							}
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
+							echo '</li>';
+							$post_count++;
 						}
-						echo '</li>';
-						$post_count++;
-					}
 
-// VIDEO POSTS
-					if ($type == "video" && $show_video) {
+	// QUOTE POSTS
+						if ($type == "quote" && $show_quote) {
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ($inline_styles) {
+								echo 'style="padding:8px 0"';
+							}
+							echo '>';
+							$text = $post->{'quote-text'};
+							$source = $post->{'quote-source'};
+							echo '<p><blockquote>'.$text.'</blockquote>'.$source.'</p>';
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
+							}
+							echo '</li>';
+							$post_count++;
+						}
+
+	// LINK POSTS
+						if ($type == "link" && $show_link) {
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ($inline_styles) {
+								echo 'style="padding:8px 0"';
+							}
+							echo '>';
+							$text = $post->{'link-text'};
+							$url = $post->{'link-url'};
+							$description = $post->{'link-description'};
+							echo '<p><a href="'.$url.'">'.$text.'</a> '.$description.'</p>';
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
+							}
+							echo '</li>';
+							$post_count++;
+						}
+
+	// CONVERSATION POSTS
+						if ($type == "conversation" && $show_conversation) {
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ($inline_styles) {
+								echo 'style="padding:8px 0"';
+							}
+							echo '>';
+							$title = $post->{'conversation-title'};
+							if ($title) {
+								echo '<h3>'.$title.'</h3>';
+								}
+							foreach ($post->conversation->line as $line) {
+								foreach ($line->attributes() as $key => $value) {
+									if ($key == "label") {
+										$name = $value;
+										}
+									}
+									echo '<strong>'.$name.'</strong> '.$line.'<br />';
+								}
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
+							}
+							echo '</li>';
+							$post_count++;
+						}
+
+	// VIDEO POSTS
+						if ($type == "video" && $show_video) {
 					
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ($inline_styles) {
-							echo 'style="padding:8px 0"';
-						}
-						echo '>';
-						$caption = $post->{'video-caption'};
-						$player = $post->{'video-player'};
-						
-						if ($video_width) {
-							if ( $video_width < 50 ) $video_width = 50;
-							$pattern = '/width="(\d+)" height="(\d+)"/';						
-							preg_match($pattern, $player, $matches);
-							if ($matches) {
-								$old_width = $matches[1];
-								$old_height = $matches[2];
-							} else {
-							$pattern = '/height="(\d+)" width="(\d+)"/';						
-								preg_match($pattern, $player, $matches);
-								$old_height = $matches[1];
-								$old_width = $matches[2];
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ($inline_styles) {
+								echo 'style="padding:8px 0"';
 							}
+							echo '>';
+							$caption = $post->{'video-caption'};
+							$player = $post->{'video-player'};
+						
+							if ($video_width) {
+								if ( $video_width < 50 ) $video_width = 50;
+								$pattern = '/width="(\d+)" height="(\d+)"/';						
+								preg_match($pattern, $player, $matches);
+								if ($matches) {
+									$old_width = $matches[1];
+									$old_height = $matches[2];
+								} else {
+								$pattern = '/height="(\d+)" width="(\d+)"/';						
+									preg_match($pattern, $player, $matches);
+									$old_height = $matches[1];
+									$old_width = $matches[2];
+								}
 							
-							$new_height = $old_height * ($video_width / $old_width );						
-							$replacement = 'width="' . $video_width . '" height="' . $new_height . '"';
-							$player = preg_replace($pattern, $replacement, $player);
+								$new_height = $old_height * ($video_width / $old_width );						
+								$replacement = 'width="' . $video_width . '" height="' . $new_height . '"';
+								$player = preg_replace($pattern, $replacement, $player);
+							}
+							$source = $post->{'video-source'};
+							echo $player."<br />".$caption."<br />";
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
+							}
+							echo '</li>';
+							$post_count++;
 						}
-						$source = $post->{'video-source'};
-						echo $player."<br />".$caption."<br />";
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
-						}
-						echo '</li>';
-						$post_count++;
-					}
 
-// AUDIO POSTS
-					if ($type == "audio" && $show_video) {
-						echo '<li class="tumblr_post '.$type.'" ';
-						if ($inline_styles) {
-							echo 'style="padding:8px 0"';
+	// AUDIO POSTS
+						if ($type == "audio" && $show_video) {
+							echo '<li class="tumblr_post '.$type.'" ';
+							if ($inline_styles) {
+								echo 'style="padding:8px 0"';
+							}
+							echo '>';
+							$caption = $post->{'audio-caption'};
+							$player = $post->{'audio-player'};
+							echo $player."<br />".$caption."<br />";
+							if ($show_time) {
+								link_to_tumblr($post_url, $time);
+							}
+							echo '</li>';
+							$post_count++;
 						}
-						echo '>';
-						$caption = $post->{'audio-caption'};
-						$player = $post->{'audio-player'};
-						echo $player."<br />".$caption."<br />";
-						if ($show_time) {
-							link_to_tumblr($post_url, $time);
-						}
-						echo '</li>';
-						$post_count++;
-					}
-				} // end of loop
-			} // $post_count == number;
-		// end of widget
+					} // end of loop
+				} // $post_count == number;
+		} // end of widget content
 		echo '</ul>'.$after_widget;
 		} else {
 			if (!$hide_errors) {
@@ -354,6 +359,7 @@ function update( $new_instance, $old_instance ) {
 
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['tumblr'] = strip_tags( $new_instance['tumblr'] );
+		$instance['tag'] = $new_instance['tag'];
 		$instance['photo_size'] = $new_instance['photo_size'];
 		$instance['show_regular'] = $new_instance['show_regular'];
 		$instance['show_photo'] = $new_instance['show_photo'];
@@ -376,7 +382,7 @@ function update( $new_instance, $old_instance ) {
 function form( $instance ) {
 
 // defaults
-		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
+		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'tag'=>'', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
 		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
 <?php // form html ?>
@@ -388,6 +394,15 @@ function form( $instance ) {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'tumblr' ); ?>">Your Tumblr:</label>
 			<input id="<?php echo $this->get_field_id( 'tumblr' ); ?>" name="<?php echo $this->get_field_name( 'tumblr' ); ?>" value="<?php echo $instance['tumblr']; ?>" style="width:100%;" />
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'tag' ); ?>">Tag:</label>
+			<input id="<?php echo $this->get_field_id( 'tag' ); ?>" name="<?php echo $this->get_field_name( 'tag' ); ?>" value="<?php echo $instance['tag']; ?>" style="width:100%;" />
+			<br />
+			<em>Enter a tag to display only posts with that tag.</em>
+			<br />
+			<em>Leave blank to show all posts.</em>
 		</p>
 
 		<p>

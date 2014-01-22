@@ -2,7 +2,7 @@
 Contributors: gabrielroth
 Tags: Tumblr, widget
 Requires at least: 2.8
-Tested up to: 3.7.1
+Tested up to: 3.8
 Stable tag: trunk
 
 Allows you to import a Tumblr into any widgetized area of a WordPress blog.
@@ -23,6 +23,8 @@ gabe.roth@gmail.com
 + *Title:* The title you want to appear above the Tumblr on your WordPress page. Leave blank if you like.
 
 + *Your Tumblr:* The URL of the Tumblr you want to import. It doesn't have to contain 'tumblr.com'. Leave off the 'http://' at the beginning.
+
++ *Tag:* Enter a single tag to display only posts with that tag. Leave blank to show all Tumblr posts.
 
 + *Maximum number of posts to display:* This number is a *maximum,* as the text suggests.
 
@@ -49,6 +51,10 @@ gabe.roth@gmail.com
 
 Use CSS. You can add targeted style rules to your `style.css` file, in your theme folder. Each post is a <code><li></code> with the class "tumblr_post." Each post also has the class of its post type: "quote", "link", "conversation", "regular", "photo", "audio", or "video".
 
+= Can I filter by more than one tag =
+
+Tumblr’s API only supports searching on a single tag, unfortunately.
+
 = Can I display photos at a different size other than the five in the dropdown menu? =
 
 Use the closest option provided and adjust the photo’s width and height properties using CSS.
@@ -63,6 +69,11 @@ Email me: gabe.roth at gmail.
 
 
 == Changelog ==
+
+= 1.4.9 =
+* Added filter-by-tag feature.
+* Fixed bug that was throwing warning on requests that returned no posts. 
+* Removed an unnecessary `<br />` tag when laying out image posts.
 
 = 1.4.8 =
 * Fixed bug that was causing SimpleXML errors.
