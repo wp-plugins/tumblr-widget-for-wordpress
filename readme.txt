@@ -70,7 +70,7 @@ Email me: gabe.roth at gmail.
 
 == Changelog ==
 
-= 1.4.9 =
+= 1.5 =
 * Added filter-by-tag feature.
 * Fixed bug that was throwing warning on requests that returned no posts. 
 * Removed an unnecessary `<br />` tag when laying out image posts.
