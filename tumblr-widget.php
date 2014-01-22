@@ -116,7 +116,7 @@ function widget( $args, $instance ) {
 			}
 		
 		/* add tag, if any, to request URL */
-		$request_url .= "&tagged=" . urlencode($tag);
+		$request_url .= "&tagged=" . urlencode(trim($tag," \t\n\r\0\x0B#"));
 		
 		
 		/* make request using WP_HTTP */
