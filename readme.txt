@@ -9,12 +9,9 @@ Allows you to import a Tumblr into any widgetized area of a WordPress blog.
 
 == Description ==
 
-Tumblr Widget allows you to display the contents of a Tumblr in any widget-enabled area of your WordPress blog. You can import all Tumblr posts or specify certain categories (photo, link, quotation, etc.) to display.
+Tumblr Widget allows you to display the contents of a Tumblr in any widget-enabled area of your WordPress blog. You can import all Tumblr posts, or only those posts with a specified tag, or specify certain categories (photo, link, quotation, etc.) to display.
 
-Requires cURL and SimpleXML. (Most PHP installations have these features enabled by default.)
-
-If you find this plugin useful, I'd love to check out your site. Send me an email and let me know where you're using it! I'm also available for custom WordPress development projects.
-gabe.roth@gmail.com
+If you find this plugin useful, I'd love to check out your site. Send me an email and let me know where you're using it! gabe.roth@gmail.com
 
 
 
@@ -30,9 +27,11 @@ gabe.roth@gmail.com
 
 + *Link title to Tumblr:* Turns the widget title into a link to your Tumblr's URL. If you don't enter a title in the title field, you won't get a link.
 
-+ *Link to each post on Tumblr* When checked, this displays the date of the Tumblr post, linking the date to the original post on the Tumblr site.
++ *Link to each post on Tumblr:* When checked, this displays the date of the Tumblr post, linking the date to the original post on the Tumblr site.
 
-+ *Add inline CSS padding* Adds a CSS style rule adding 8 pixels of padding above and below each Tumblr post. Disable to prevent it messing up your own CSS.
++ *Images link to Tumblr post:* By default, images in photo posts link to a large image file. When this box is checked, they link to the Tumblr post instead.
+
++ *Add inline CSS padding:* Adds a CSS style rule adding 8 pixels of padding above and below each Tumblr post. Disable to prevent it messing up your own CSS.
 
 + *Set video width:* Resizes videos to help them fit in your theme. Enter a value in pixels. 50px is the minimum. Height will be adjusted automatically in proportion to the width you choose.
 
@@ -69,6 +68,11 @@ Email me: gabe.roth at gmail.
 
 
 == Changelog ==
+
+= 2.0 =
+* Tumblr Widget now supports multiple instances, allowing you to import more than one Tumblr to your WordPress site.
+* Added option to link images to the Tumblr post rather than the image file.
+* Smarter cache handling.
 
 = 1.5 =
 * Added filter-by-tag feature.

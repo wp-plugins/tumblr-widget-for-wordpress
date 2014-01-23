@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://wordpress.org/plugins/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 1.5
+ * Version: 2.0
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -24,12 +24,6 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-add_action( 'widgets_init', 'load_tumblr_widget' );
-
-function load_tumblr_widget() {
-	register_widget( 'Tumblr_Widget' );
-}
-
 class Tumblr_Widget extends WP_Widget {
 
 function Tumblr_Widget() {
@@ -47,14 +41,10 @@ function widget( $args, $instance ) {
 		}	
 	}
 
-	function link_to_tumblr($post_url, $time) {
-		echo '<p><a href="'.$post_url.'" class="tumblr_link">'.date('m/d/y', intval($time)).'</a></p>';
-	}
-
-	$tumblrcache = unserialize(get_option('tumblrcache'));
-
 	/* Set up variables and arguments */	
 	extract( $args );
+	$cache = $instance['cache'];
+	$last_update = $instance['last_update'];
 	$title = apply_filters('widget_title', $instance['title'] );
 	$tumblr = $instance['tumblr'];
 	$tumblr = rtrim($tumblr, "/ \t\n\r");
@@ -69,6 +59,7 @@ function widget( $args, $instance ) {
 	$show_video = $instance['show_video'];
 	$inline_styles = $instance['inline_styles'];
 	$show_time = $instance['show_time'];
+	$images_link_to_tumblr_post = $instance['images_link_to_tumblr_post'];
 	$number = $instance['number'];
 	$video_width = $instance['video_width'];
 	$link_title = $instance['link_title'];
@@ -84,8 +75,7 @@ function widget( $args, $instance ) {
 		"video" => $show_video,
 		);
 	
-	/* If the cache was last updated more than one minute ago ... */
-	if ( $tumblrcache['lastcheck'] <  ( time() - 60 ) ) {	
+	if ( $last_update <  ( time() - 60 ) ) { // if we're making a new request rather than using the cached version
 		$count = 0;
 		foreach( $types as $type ) {
 			if ($type)
@@ -128,17 +118,14 @@ function widget( $args, $instance ) {
 			return;
 		}
 		
-		
 		if ( strpos($result['body'], "<!DOCT") !== 0 ) {		
-			$tumblrcache['xml'] = $result['body'];
-			$tumblrcache['lastcheck'] = time();
-			update_option('tumblrcache', serialize($tumblrcache));
-
+			$cache = trim($result['body']); // We trim because Tumblr's API sometimes puts some extra whitespace at the front, stupidly.
+			$last_update = time();
 		}
 	} // end if
 
 	/* Using the cached version, whether or not it was just updated. */
-	$xml_string = trim($tumblrcache['xml']); // We trim because Tumblr's API sometimes puts some extra whitespace at the front, stupidly.
+	$xml_string = $cache;
 	try {	
 		$xml = simplexml_load_string($xml_string);
 	} catch (Exception $e) {
@@ -212,7 +199,7 @@ function widget( $args, $instance ) {
 										}
 									}
 								}
-							echo '<a href="'.$link_url.'"><img src="'.$url.'" alt="photo from Tumblr" /></a><br />'.$caption;
+							echo '<a href="'. ($images_link_to_tumblr_post ? $post_url : $link_url) .'"><img src="'.$url.'" alt="photo from Tumblr" /></a><br />'.$caption; // tk
 							if ($show_time) {
 								link_to_tumblr($post_url, $time);
 							}
@@ -346,35 +333,25 @@ function widget( $args, $instance ) {
 		}
 	}
 
-
-
-
 // saves widget settings
 function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
-		
-		if ($new_instance['tumblr'] != $instance['tumblr']) {
-			delete_option('tumblrcache');
+		$parameters = array('cache', 'last_update', 'title', 'tumblr', 'tag', 'photo_size', 'show_regular', 'show_photo', 'show_quote', 'show_link', 'show_conversation', 'show_audio', 'show_video', 'inline_styles', 'show_time', 'images_link_to_tumblr_post', 'number', 'video_width', 'link_title', 'hide_errors');
+		foreach ($parameters as $parameter) {
+			$instance[$parameter] = $new_instance[$parameter];
 		}
 
-		$instance['title'] = strip_tags( $new_instance['title'] );
-		$instance['tumblr'] = strip_tags( $new_instance['tumblr'] );
-		$instance['tag'] = $new_instance['tag'];
-		$instance['photo_size'] = $new_instance['photo_size'];
-		$instance['show_regular'] = $new_instance['show_regular'];
-		$instance['show_photo'] = $new_instance['show_photo'];
-		$instance['show_quote'] = $new_instance['show_quote'];
-		$instance['show_link'] = $new_instance['show_link'];
-		$instance['show_conversation'] = $new_instance['show_conversation'];
-		$instance['show_audio'] = $new_instance['show_audio'];
-		$instance['show_video'] = $new_instance['show_video'];
-		$instance['inline_styles'] = $new_instance['inline_styles'];
-		$instance['show_time'] = $new_instance['show_time'];
-		$instance['number'] = $new_instance['number'];
-		$instance['video_width'] = $new_instance['video_width'];
-		$instance['link_title'] = $new_instance['link_title'];
-		$instance['hide_errors'] = $new_instance['hide_errors'];
+		$instance['title'] = strip_tags( $instance['title'] );
+		$instance['tumblr'] = strip_tags( $instance['tumblr'] );
 
+		$keys_where_we_flush_cache_if_changed = array('tumblr', 'tag', 'show_regular', 'show_photo', 'show_quote', 'show_link', 'show_conversation', 'show_audio', 'show_video', 'number');
+
+		foreach ( $keys_where_we_flush_cache_if_changed as $this_key ) {
+			if ( $instance[$this_key] != $old_instance[$this_key] ) {
+				$instance['last_update'] = 0;
+				break;
+			}
+		}
 		return $instance;
 	}
 
@@ -382,125 +359,142 @@ function update( $new_instance, $old_instance ) {
 function form( $instance ) {
 
 // defaults
-		$defaults = array( 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'tag'=>'', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
-		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
+	$defaults = array( 'cache'=>'', 'last_update'=>'', 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'tag'=>'', 'photo_size'=>'75', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'images_link_to_tumblr_post'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
+	$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
 <?php // form html ?>
-			<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>">Title:</label>
-			<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" style="width:100%;" />
-		</p>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>">Title:</label>
+		<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" style="width:100%;" />
+	</p>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'tumblr' ); ?>">Your Tumblr:</label>
-			<input id="<?php echo $this->get_field_id( 'tumblr' ); ?>" name="<?php echo $this->get_field_name( 'tumblr' ); ?>" value="<?php echo $instance['tumblr']; ?>" style="width:100%;" />
-		</p>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'tumblr' ); ?>">Your Tumblr:</label>
+		<input id="<?php echo $this->get_field_id( 'tumblr' ); ?>" name="<?php echo $this->get_field_name( 'tumblr' ); ?>" value="<?php echo $instance['tumblr']; ?>" style="width:100%;" />
+	</p>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'tag' ); ?>">Tag:</label>
-			<input id="<?php echo $this->get_field_id( 'tag' ); ?>" name="<?php echo $this->get_field_name( 'tag' ); ?>" value="<?php echo $instance['tag']; ?>" style="width:100%;" />
-			<br />
-			<em>Enter a tag to display only posts with that tag.</em>
-			<br />
-			<em>Leave blank to show all posts.</em>
-		</p>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'tag' ); ?>">Tag:</label>
+		<input id="<?php echo $this->get_field_id( 'tag' ); ?>" name="<?php echo $this->get_field_name( 'tag' ); ?>" value="<?php echo $instance['tag']; ?>" style="width:100%;" />
+		<br />
+		<em>Enter a tag to display only posts with that tag.</em>
+		<br />
+		<em>Leave blank to show all posts.</em>
+	</p>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'number' ); ?>">Maximum number of posts to display:</label>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'number' ); ?>">Maximum number of posts to display:</label>
 
-			<select id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" value="<?php echo $instance['number']; ?>">
+		<select id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" value="<?php echo $instance['number']; ?>">
 
-			<option value="1" <?php if ($instance['number']==1) echo 'selected="selected"'; ?>>1</option>
+		<option value="1" <?php if ($instance['number']==1) echo 'selected="selected"'; ?>>1</option>
 
-			<option value="2" <?php if ($instance['number']==2) echo 'selected="selected"'; ?>>2</option>
+		<option value="2" <?php if ($instance['number']==2) echo 'selected="selected"'; ?>>2</option>
 
-			<option value="3" <?php if ($instance['number']==3) echo 'selected="selected"'; ?>>3</option>
+		<option value="3" <?php if ($instance['number']==3) echo 'selected="selected"'; ?>>3</option>
 
-			<option value="5" <?php if ($instance['number']==5) echo 'selected="selected"'; ?>>5</option>
+		<option value="5" <?php if ($instance['number']==5) echo 'selected="selected"'; ?>>5</option>
 
-			<option value="10" <?php if ($instance['number']==10) echo 'selected="selected"'; ?>>10</option>
+		<option value="10" <?php if ($instance['number']==10) echo 'selected="selected"'; ?>>10</option>
 
-			<option value="15" <?php if ($instance['number']==15) echo 'selected="selected"'; ?>>15</option>
+		<option value="15" <?php if ($instance['number']==15) echo 'selected="selected"'; ?>>15</option>
 
-			<option value="20" <?php if ($instance['number']==20) echo 'selected="selected"'; ?>>20</option>
+		<option value="20" <?php if ($instance['number']==20) echo 'selected="selected"'; ?>>20</option>
 
-			<option value="25" <?php if ($instance['number']==25) echo 'selected="selected"'; ?>>25</option>
-			</select>
-		</p>
+		<option value="25" <?php if ($instance['number']==25) echo 'selected="selected"'; ?>>25</option>
+		</select>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'link_title' ); ?>" name="<?php echo $this->get_field_name( 'link_title' ); ?>" <?php if ($instance['link_title']) echo 'checked'; ?> />
-			<label for="<?php echo $this->get_field_id( 'link_title' ); ?>">Link title to Tumblr</label>
-		</p>
+	<p>
+		<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'link_title' ); ?>" name="<?php echo $this->get_field_name( 'link_title' ); ?>" <?php if ($instance['link_title']) echo 'checked'; ?> />
+		<label for="<?php echo $this->get_field_id( 'link_title' ); ?>">Link title to Tumblr</label>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'show_time' ); ?>" name="<?php echo $this->get_field_name( 'show_time' ); ?>" <?php if ($instance['show_time']) echo 'checked'; ?> />
-			<label for="<?php echo $this->get_field_id( 'show_time' ); ?>">Link to each post on Tumblr</label>
-		</p>		
-		
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['inline_styles']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'inline_styles' ); ?>">Add inline CSS padding</label>
-		</p>
+	<p>
+		<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'show_time' ); ?>" name="<?php echo $this->get_field_name( 'show_time' ); ?>" <?php if ($instance['show_time']) echo 'checked'; ?> />
+		<label for="<?php echo $this->get_field_id( 'show_time' ); ?>">Link to each post on Tumblr</label>
+	</p>		
+	
+	<p>
+		<input class="checkbox" type="checkbox" id="<?php echo $this->get_field_id( 'images_link_to_tumblr_post' ); ?>" name="<?php echo $this->get_field_name( 'images_link_to_tumblr_post' ); ?>" <?php if ($instance['images_link_to_tumblr_post']) echo 'checked'; ?> />
+		<label for="<?php echo $this->get_field_id( 'images_link_to_tumblr_post' ); ?>">Images link to Tumblr post</label>
+		<br />
+		<em>If unchecked, images link to large image file.</em>
+	</p>		
+	
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['inline_styles']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'inline_styles' ); ?>">Add inline CSS padding</label>
+	</p>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'video_width' ); ?>">Set video width:</label>
-			<input id="<?php echo $this->get_field_id( 'video_width' ); ?>" name="<?php echo $this->get_field_name( 'video_width' ); ?>" value="<?php echo $instance['video_width']; ?>" maxlength='4' style="width:30px" /> px
-			<br />
-			<em>Leave blank to show videos at original size.</em>
-		</p>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'video_width' ); ?>">Set video width:</label>
+		<input id="<?php echo $this->get_field_id( 'video_width' ); ?>" name="<?php echo $this->get_field_name( 'video_width' ); ?>" value="<?php echo $instance['video_width']; ?>" maxlength='4' style="width:30px" /> px
+		<br />
+		<em>Leave blank to show videos at original size.</em>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['hide_errors']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'hide_errors' ); ?>" name="<?php echo $this->get_field_name( 'hide_errors' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'hide_errors' ); ?>">Hide error messages</label>
-			<br />
-			<em>If checked, the widget fails silently when it can&rsquo;t load Tumblr content.</em>
-		</p>
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['hide_errors']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'hide_errors' ); ?>" name="<?php echo $this->get_field_name( 'hide_errors' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'hide_errors' ); ?>">Hide error messages</label>
+		<br />
+		<em>If checked, the widget fails silently when it can&rsquo;t load Tumblr content.</em>
+	</p>
 
+	<hr />
+	
+	<p><strong>Show:</strong></p>
 
-<hr />
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_regular']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_regular' ); ?>" name="<?php echo $this->get_field_name( 'show_regular' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_regular' ); ?>">Regular posts</label>
+	</p>
 
-		<p><strong>Show:</strong></p>
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_photo']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_photo' ); ?>" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_photo' ); ?>">Photo posts</label>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_regular']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_regular' ); ?>" name="<?php echo $this->get_field_name( 'show_regular' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_regular' ); ?>">Regular posts</label>
-		</p>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'photo_size' ); ?>">Photo size:</label>
+		<select id="<?php echo $this->get_field_id( 'photo_size' ); ?>" name="<?php echo $this->get_field_name( 'photo_size' ); ?>" value="<?php echo $instance['photo_size']; ?>"><option value="75" <?php if ($instance['photo_size']==75) echo 'selected="selected"'; ?>>75px</option><option value="100" <?php if ($instance['photo_size']==100) echo 'selected="selected"'; ?>>100px</option><option value="250" <?php if ($instance['photo_size']==250) echo 'selected="selected"'; ?>>250px</option><option value="400" <?php if ($instance['photo_size']==400) echo 'selected="selected"'; ?>>400px</option><option value="500" <?php if ($instance['photo_size']==500) echo 'selected="selected"'; ?>>500px</option></select>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_photo']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_photo' ); ?>" name="<?php echo $this->get_field_name( 'show_photo' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_photo' ); ?>">Photo posts</label>
-		</p>
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_quote']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_quote' ); ?>" name="<?php echo $this->get_field_name( 'show_quote' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_quote' ); ?>">Quotation posts</label>
+	</p>
+	
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_link']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_link' ); ?>" name="<?php echo $this->get_field_name( 'show_link' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_link' ); ?>">Link posts</label>
+	</p>
+	
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_conversation']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_conversation' ); ?>" name="<?php echo $this->get_field_name( 'show_conversation' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_conversation' ); ?>">Conversation posts</label>
+	</p>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'photo_size' ); ?>">Photo size:</label>
-			<select id="<?php echo $this->get_field_id( 'photo_size' ); ?>" name="<?php echo $this->get_field_name( 'photo_size' ); ?>" value="<?php echo $instance['photo_size']; ?>"><option value="75" <?php if ($instance['photo_size']==75) echo 'selected="selected"'; ?>>75px</option><option value="100" <?php if ($instance['photo_size']==100) echo 'selected="selected"'; ?>>100px</option><option value="250" <?php if ($instance['photo_size']==250) echo 'selected="selected"'; ?>>250px</option><option value="400" <?php if ($instance['photo_size']==400) echo 'selected="selected"'; ?>>400px</option><option value="500" <?php if ($instance['photo_size']==500) echo 'selected="selected"'; ?>>500px</option></select>
-		</p>
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_audio']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_audio' ); ?>" name="<?php echo $this->get_field_name( 'show_audio' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_audio' ); ?>">Audio posts</label>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_quote']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_quote' ); ?>" name="<?php echo $this->get_field_name( 'show_quote' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_quote' ); ?>">Quotation posts</label>
-		</p>
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_link']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_link' ); ?>" name="<?php echo $this->get_field_name( 'show_link' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_link' ); ?>">Link posts</label>
-		</p>
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_conversation']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_conversation' ); ?>" name="<?php echo $this->get_field_name( 'show_conversation' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_conversation' ); ?>">Conversation posts</label>
-		</p>
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['show_video']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_video' ); ?>" name="<?php echo $this->get_field_name( 'show_video' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'show_video' ); ?>">Video posts</label>
+	</p>
 
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_audio']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_audio' ); ?>" name="<?php echo $this->get_field_name( 'show_audio' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_audio' ); ?>">Audio posts</label>
-		</p>
-
-		<p>
-			<input class="checkbox" type="checkbox" <?php if ($instance['show_video']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_video' ); ?>" name="<?php echo $this->get_field_name( 'show_video' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_video' ); ?>">Video posts</label>
-		</p>
-
-			<?php
+<?php
 	}
 }
+
+function link_to_tumblr($post_url, $time) {
+	echo '<p><a href="'.$post_url.'" class="tumblr_link">'.date('m/d/y', intval($time)).'</a></p>';
+}
+
+add_action('widgets_init',
+     create_function('', 'return register_widget("Tumblr_Widget");')
+);
+
 ?>
