@@ -3,7 +3,7 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://wordpress.org/plugins/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 2.0
+ * Version: 2.0.1
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
@@ -43,27 +43,26 @@ function widget( $args, $instance ) {
 
 	/* Set up variables and arguments */	
 	extract( $args );
-	$cache = $instance['cache'];
-	$last_update = $instance['last_update'];
-	$title = apply_filters('widget_title', $instance['title'] );
-	$tumblr = $instance['tumblr'];
-	$tumblr = rtrim($tumblr, "/ \t\n\r");
-	$tag = $instance['tag'];
-	$photo_size = $instance['photo_size'];
-	$show_regular = $instance['show_regular'];
-	$show_photo = $instance['show_photo'];
-	$show_quote = $instance['show_quote'];
-	$show_link = $instance['show_link'];
-	$show_conversation = $instance['show_conversation'];
-	$show_audio = $instance['show_audio'];
-	$show_video = $instance['show_video'];
-	$inline_styles = $instance['inline_styles'];
-	$show_time = $instance['show_time'];
-	$images_link_to_tumblr_post = $instance['images_link_to_tumblr_post'];
-	$number = $instance['number'];
-	$video_width = $instance['video_width'];
-	$link_title = $instance['link_title'];
-	$hide_errors = $instance['hide_errors'];
+	$cache = ($instance['cache'] ? $instance['cache'] : NULL);
+	$last_update = ($instance['last_update'] ? $instance['last_update'] : NULL);
+	$title = ($instance['title'] ? apply_filters('widget_title', $instance['title'] ) : NULL);
+	$tumblr = ($instance['tumblr'] ? rtrim($instance['tumblr'], "/ \t\n\r") : NULL);
+	$tag = ($instance['tag'] ? $instance['tag'] : NULL);
+	$photo_size = ($instance['photo_size'] ? $instance['photo_size'] : NULL);
+	$show_regular = ($instance['show_regular'] ? $instance['show_regular'] : NULL);
+	$show_photo = ($instance['show_photo'] ? $instance['show_photo'] : NULL);
+	$show_quote = ($instance['show_quote'] ? $instance['show_quote'] : NULL);
+	$show_link = ($instance['show_link'] ? $instance['show_link'] : NULL);
+	$show_conversation = ($instance['show_conversation'] ? $instance['show_conversation'] : NULL);
+	$show_audio = ($instance['show_audio'] ? $instance['show_audio'] : NULL);
+	$show_video = ($instance['show_video'] ? $instance['show_video'] : NULL);
+	$inline_styles = ($instance['inline_styles'] ? $instance['inline_styles'] : NULL);
+	$show_time = ($instance['show_time'] ? $instance['show_time'] : NULL);
+	$images_link_to_tumblr_post = ($instance['images_link_to_tumblr_post'] ? $instance['images_link_to_tumblr_post'] : NULL);
+	$number = ($instance['number'] ? $instance['number'] : NULL);
+	$video_width = ($instance['video_width'] ? $instance['video_width'] : NULL);
+	$link_title = ($instance['link_title'] ? $instance['link_title'] : NULL);
+	$hide_errors = ($instance['hide_errors'] ? $instance['hide_errors'] : NULL);
 
 	$types = array (
 		"regular" => $show_regular,

@@ -69,6 +69,9 @@ Email me: gabe.roth at gmail.
 
 == Changelog ==
 
+= 2.0.1 =
+* Fixed bug that was throwing "undefined index" warnings on first run.
+
 = 2.0 =
 * Tumblr Widget now supports multiple instances, allowing you to import more than one Tumblr to your WordPress site.
 * Added option to link images to the Tumblr post rather than the image file.
