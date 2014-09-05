@@ -2,7 +2,7 @@
 Contributors: gabrielroth
 Tags: Tumblr, widget
 Requires at least: 2.8
-Tested up to: 3.9
+Tested up to: 4.0
 Stable tag: trunk
 
 Allows you to import a Tumblr into any widgetized area of a WordPress blog.
@@ -21,7 +21,9 @@ If you find this plugin useful, I'd love to check out your site. Send me an emai
 
 + *Your Tumblr:* The URL of the Tumblr you want to import. It doesn't have to contain 'tumblr.com'. Leave off the 'http://' at the beginning.
 
-+ *Tag:* Enter a single tag to display only posts with that tag. Leave blank to show all Tumblr posts.
++ *Tag to show:* Enter a single tag to display only posts with that tag. Leave blank to show all Tumblr posts.
+
++ *Tag to hide:* Enter a single tag to hide all posts with that tag.
 
 + *Maximum number of posts to display:* This number is a *maximum,* as the text suggests.
 
@@ -37,7 +39,7 @@ If you find this plugin useful, I'd love to check out your site. Send me an emai
 
 + *Show:* Include or exclude different post types in the feed.
 
-+ *Photo size:* Tumblr provides each photo in five different sizes. Whichever size you choose to display, the image links to the 500 pixel version.
++ *Photo size:* Tumblr provides each photo in six different sizes. Whichever size you choose to display, the image links to the 1,280-pixel version.
 
 == Installation ==
 
@@ -54,9 +56,9 @@ Use CSS. You can add targeted style rules to your `style.css` file, in your them
 
 Tumblr’s API only supports searching on a single tag, unfortunately.
 
-= Can I display photos at a different size other than the five in the dropdown menu? =
+= Can I display photos at a different size other than the six in the dropdown menu? =
 
-Use the closest option provided and adjust the photo’s width and height properties using CSS.
+Choose the nearest size that's bigger than what you want, then adjust the photo’s width and height properties using CSS.
 
 = Can I import and display someone else's Tumblr? =
 
@@ -68,6 +70,11 @@ Email me: gabe.roth at gmail.
 
 
 == Changelog ==
+
+= 2.1 =
+* Added hide-by-tag feature.
+* Added support for high-resolution 1,280-px photos.
+* Tidied up control panel.
 
 = 2.0.1 =
 * Fixed bug that was throwing "undefined index" warnings on first run.
@@ -114,7 +121,7 @@ Email me: gabe.roth at gmail.
 * We now use WP_Http instead of cURL, as recommended.
 
 = 1.3 =
-* Added two features: 'Resize videos' and 'link title to Tumblr'. 
+* Added two features: 'Resize videos' and 'Link title to Tumblr'. 
 
 = 1.2 =
 * Fixed bug that was preventing settings from being preserved with WP 2.9.

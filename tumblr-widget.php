@@ -3,11 +3,11 @@
  * Plugin Name: Tumblr Widget
  * Plugin URI: http://wordpress.org/plugins/tumblr-widget-for-wordpress/
  * Description: Displays a Tumblr on a WordPress page.
- * Version: 2.0.1
+ * Version: 2.1
  * Author: Gabriel Roth
  * Author URI: http://gabrielroth.com
  */
-/*  Copyright 2013  GABRIEL ROTH  (email : gabe.roth@gmail.com)
+/*  Copyright 2014  GABRIEL ROTH  (email: gabe.roth@gmail.com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ function widget( $args, $instance ) {
 	$title = ($instance['title'] ? apply_filters('widget_title', $instance['title'] ) : NULL);
 	$tumblr = ($instance['tumblr'] ? rtrim($instance['tumblr'], "/ \t\n\r") : NULL);
 	$tag = ($instance['tag'] ? $instance['tag'] : NULL);
+	$hide_tag  = ($instance['hide_tag'] ? $instance['hide_tag'] : NULL);
 	$photo_size = ($instance['photo_size'] ? $instance['photo_size'] : NULL);
 	$show_regular = ($instance['show_regular'] ? $instance['show_regular'] : NULL);
 	$show_photo = ($instance['show_photo'] ? $instance['show_photo'] : NULL);
@@ -85,28 +86,21 @@ function widget( $args, $instance ) {
 			$tumblr = substr($tumblr, 7);
 		$tumblr = rtrim($tumblr, "/");
 	
-		/* if there's only one category, get the next $number posts in that category */
+		$request_url = "http://".$tumblr."/api/read?num=50";
+
+		/* if there's only one category, add the category to the URL */
 		if ( $count == 1 ) {
 			foreach ( $types as $type => $value ) {
 				if ( $value )
 					$the_type = $type;
 				}
-			$request_url = "http://".$tumblr."/api/read?num=".$number."&type=".$the_type;
+			$request_url .= "&type=".$the_type;
 			}
-	
-		/* if all seven categories are checked, get the next $number posts in all categories */
-		elseif ( $count == 7 ) {
-			$request_url = "http://".$tumblr."/api/read?num=".$number;
-			}
-	
-		/* if there are 2-6 categories, get the next 50 posts and we'll keep count of how many are displayed. */
-		else {
-			$request_url = "http://".$tumblr."/api/read?num=50";
-			}
-		
+			
 		/* add tag, if any, to request URL */
-		$request_url .= "&tagged=" . urlencode(trim($tag," \t\n\r\0\x0B#"));
-		
+		if (!empty($tag)) {
+			$request_url .= "&tagged=" . urlencode(trim($tag," \t\n\r\0\x0B#"));
+		}
 		
 		/* make request using WP_HTTP */
 		$request = new WP_Http;
@@ -150,6 +144,13 @@ function widget( $args, $instance ) {
 		if ( $xml->posts ) {
 			/* Starting to loop through the posts */
 			foreach ( $xml->posts->post as $post ) {
+				/* Hide posts with the hidden tag */
+				$should_skip = FALSE;
+				foreach ($post->tag as $this_tag) {
+					if (strcasecmp($this_tag, $hide_tag) == 0) { $should_skip = TRUE; break; }
+				}
+				if ($should_skip) { continue; }
+			
 				if ( $post_count < $number ) {
 					/* Get post type and other info from XML attributes and store in variables */
 					foreach ($post->attributes() as $key => $value) {
@@ -193,7 +194,7 @@ function widget( $args, $instance ) {
 									if ($value == $photo_size) {
 										$url = $this_url;
 										}
-									if ($value == 500) {
+									if ($value == 1280) {
 										$link_url = $this_url;
 										}
 									}
@@ -335,7 +336,7 @@ function widget( $args, $instance ) {
 // saves widget settings
 function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
-		$parameters = array('cache', 'last_update', 'title', 'tumblr', 'tag', 'photo_size', 'show_regular', 'show_photo', 'show_quote', 'show_link', 'show_conversation', 'show_audio', 'show_video', 'inline_styles', 'show_time', 'images_link_to_tumblr_post', 'number', 'video_width', 'link_title', 'hide_errors');
+		$parameters = array('cache', 'last_update', 'title', 'tumblr', 'tag', 'hide_tag', 'photo_size', 'show_regular', 'show_photo', 'show_quote', 'show_link', 'show_conversation', 'show_audio', 'show_video', 'inline_styles', 'show_time', 'images_link_to_tumblr_post', 'number', 'video_width', 'link_title', 'hide_errors');
 		foreach ($parameters as $parameter) {
 			$instance[$parameter] = $new_instance[$parameter];
 		}
@@ -358,7 +359,7 @@ function update( $new_instance, $old_instance ) {
 function form( $instance ) {
 
 // defaults
-	$defaults = array( 'cache'=>'', 'last_update'=>'', 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'tag'=>'', 'photo_size'=>'75', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'images_link_to_tumblr_post'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
+	$defaults = array( 'cache'=>'', 'last_update'=>'', 'title'=>'My Tumblr', 'tumblr'=>'demo.tumblr.com', 'tag'=>'', 'hide_tag'=>'', 'photo_size'=>'75', 'show_regular' => true, 'show_photo' => true, 'show_quote' => true, 'show_link' => true, 'show_conversation' => true, 'show_audio'=>true, 'show_video'=>true, 'inline_styles'=>false, 'show_time'=>false, 'images_link_to_tumblr_post'=>false, 'number'=>10, 'video_width'=>false, 'link_title'=>false, 'hide_errors'=>false );
 	$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 
 <?php // form html ?>
@@ -368,17 +369,8 @@ function form( $instance ) {
 	</p>
 
 	<p>
-		<label for="<?php echo $this->get_field_id( 'tumblr' ); ?>">Your Tumblr:</label>
+		<label for="<?php echo $this->get_field_id( 'tumblr' ); ?>">Your Tumblr URL:</label>
 		<input id="<?php echo $this->get_field_id( 'tumblr' ); ?>" name="<?php echo $this->get_field_name( 'tumblr' ); ?>" value="<?php echo $instance['tumblr']; ?>" style="width:100%;" />
-	</p>
-
-	<p>
-		<label for="<?php echo $this->get_field_id( 'tag' ); ?>">Tag:</label>
-		<input id="<?php echo $this->get_field_id( 'tag' ); ?>" name="<?php echo $this->get_field_name( 'tag' ); ?>" value="<?php echo $instance['tag']; ?>" style="width:100%;" />
-		<br />
-		<em>Enter a tag to display only posts with that tag.</em>
-		<br />
-		<em>Leave blank to show all posts.</em>
 	</p>
 
 	<p>
@@ -421,27 +413,26 @@ function form( $instance ) {
 		<em>If unchecked, images link to large image file.</em>
 	</p>		
 	
-	<p>
-		<input class="checkbox" type="checkbox" <?php if ($instance['inline_styles']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
-		<label for="<?php echo $this->get_field_id( 'inline_styles' ); ?>">Add inline CSS padding</label>
+	<hr />
+	
+		<p>
+		<label for="<?php echo $this->get_field_id( 'tag' ); ?>">Tag to show:</label>
+		<input id="<?php echo $this->get_field_id( 'tag' ); ?>" name="<?php echo $this->get_field_name( 'tag' ); ?>" value="<?php echo $instance['tag']; ?>" style="width:100%;" />
+		<br />
+		<em>Enter a tag to display</em> <strong>only</strong> <em>posts with that tag.</em>
+		<br />
+		<em>Leave blank to show all posts.</em>
 	</p>
 
 	<p>
-		<label for="<?php echo $this->get_field_id( 'video_width' ); ?>">Set video width:</label>
-		<input id="<?php echo $this->get_field_id( 'video_width' ); ?>" name="<?php echo $this->get_field_name( 'video_width' ); ?>" value="<?php echo $instance['video_width']; ?>" maxlength='4' style="width:30px" /> px
+		<label for="<?php echo $this->get_field_id( 'hide_tag' ); ?>">Tag to hide:</label>
+		<input id="<?php echo $this->get_field_id( 'hide_tag' ); ?>" name="<?php echo $this->get_field_name( 'hide_tag' ); ?>" value="<?php echo $instance['hide_tag']; ?>" style="width:100%;" />
 		<br />
-		<em>Leave blank to show videos at original size.</em>
-	</p>
-
-	<p>
-		<input class="checkbox" type="checkbox" <?php if ($instance['hide_errors']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'hide_errors' ); ?>" name="<?php echo $this->get_field_name( 'hide_errors' ); ?>" />
-		<label for="<?php echo $this->get_field_id( 'hide_errors' ); ?>">Hide error messages</label>
-		<br />
-		<em>If checked, the widget fails silently when it can&rsquo;t load Tumblr content.</em>
+		<em>Enter a tag to</em> <strong>hide</strong> <em>posts with that tag.</em>
 	</p>
 
 	<hr />
-	
+		
 	<p><strong>Show:</strong></p>
 
 	<p>
@@ -456,7 +447,7 @@ function form( $instance ) {
 
 	<p>
 		<label for="<?php echo $this->get_field_id( 'photo_size' ); ?>">Photo size:</label>
-		<select id="<?php echo $this->get_field_id( 'photo_size' ); ?>" name="<?php echo $this->get_field_name( 'photo_size' ); ?>" value="<?php echo $instance['photo_size']; ?>"><option value="75" <?php if ($instance['photo_size']==75) echo 'selected="selected"'; ?>>75px</option><option value="100" <?php if ($instance['photo_size']==100) echo 'selected="selected"'; ?>>100px</option><option value="250" <?php if ($instance['photo_size']==250) echo 'selected="selected"'; ?>>250px</option><option value="400" <?php if ($instance['photo_size']==400) echo 'selected="selected"'; ?>>400px</option><option value="500" <?php if ($instance['photo_size']==500) echo 'selected="selected"'; ?>>500px</option></select>
+		<select id="<?php echo $this->get_field_id( 'photo_size' ); ?>" name="<?php echo $this->get_field_name( 'photo_size' ); ?>" value="<?php echo $instance['photo_size']; ?>"><option value="75" <?php if ($instance['photo_size']==75) echo 'selected="selected"'; ?>>75px</option><option value="100" <?php if ($instance['photo_size']==100) echo 'selected="selected"'; ?>>100px</option><option value="250" <?php if ($instance['photo_size']==250) echo 'selected="selected"'; ?>>250px</option><option value="400" <?php if ($instance['photo_size']==400) echo 'selected="selected"'; ?>>400px</option><option value="500" <?php if ($instance['photo_size']==500) echo 'selected="selected"'; ?>>500px</option><option value="1280" <?php if ($instance['photo_size']==1280) echo 'selected="selected"'; ?>>1280px</option></select>
 	</p>
 
 	<p>
@@ -482,6 +473,27 @@ function form( $instance ) {
 	<p>
 		<input class="checkbox" type="checkbox" <?php if ($instance['show_video']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'show_video' ); ?>" name="<?php echo $this->get_field_name( 'show_video' ); ?>" />
 		<label for="<?php echo $this->get_field_id( 'show_video' ); ?>">Video posts</label>
+	</p>
+	
+	<hr />
+	
+		<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['inline_styles']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'inline_styles' ); ?>" name="<?php echo $this->get_field_name( 'inline_styles' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'inline_styles' ); ?>">Add inline CSS padding</label>
+	</p>
+
+	<p>
+		<label for="<?php echo $this->get_field_id( 'video_width' ); ?>">Set video width:</label>
+		<input id="<?php echo $this->get_field_id( 'video_width' ); ?>" name="<?php echo $this->get_field_name( 'video_width' ); ?>" value="<?php echo $instance['video_width']; ?>" maxlength='4' style="width:30px" /> px
+		<br />
+		<em>Leave blank to show videos at original size.</em>
+	</p>
+
+	<p>
+		<input class="checkbox" type="checkbox" <?php if ($instance['hide_errors']) echo 'checked'; ?> id="<?php echo $this->get_field_id( 'hide_errors' ); ?>" name="<?php echo $this->get_field_name( 'hide_errors' ); ?>" />
+		<label for="<?php echo $this->get_field_id( 'hide_errors' ); ?>">Hide error messages</label>
+		<br />
+		<em>If checked, the widget fails silently when it can&rsquo;t load Tumblr content.</em>
 	</p>
 
 <?php
